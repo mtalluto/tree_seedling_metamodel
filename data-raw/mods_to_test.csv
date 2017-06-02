@@ -1,0 +1,7 @@
+model,dd0,tdiff,gsp,winp,dd0Xdd0,tdiffXdd0,gspXdd0,winpXdd0,tdiffXtdiff,gspXtdiff,winpXtdiff,gspXgsp,winpXgsp,winpXwinp
+ABLA,1,1,1,1,1,0,0,1,0,1,0,0,1,1
+PIEN,1,1,1,1,1,1,0,1,0,1,0,0,1,1
+PICO,1,1,1,1,1,1,0,1,1,0,0,1,1,0
+PIPO,1,1,1,1,1,1,1,1,1,1,1,1,1,0
+PSME,1,1,1,1,1,1,1,1,1,1,0,0,1,0
+POTR,1,1,1,1,1,1,0,1,1,1,1,0,1,1

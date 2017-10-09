@@ -1,5 +1,7 @@
+#' Naive model data
 #' @description Create data list for laplaces demon
 #' @param dat Data frame with species data for the SDM
+#' @export
 naive_ld_dat <- function(dat)
 {
 	Y <- dat[,1]
@@ -18,7 +20,8 @@ naive_ld_dat <- function(dat)
 }
 
 
-#' @description Naive distribution model from seedling metamodel
+#' Naive distribution model
+#' Naive distribution model from seedling metamodel
 #' Created by Paige E. Copenhaver-Parry  28 January 2017
 #' 
 #' @param parm Parameter list

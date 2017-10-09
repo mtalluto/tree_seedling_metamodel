@@ -6,7 +6,6 @@ Description: Code package for tree seedling metamodel
 Depends: R (>= 3.3.3)
 Imports:
 	treeSeedlingMetamodelData,
-	rstan,
 	LaplacesDemon
 License: MIT License (see license file)
 Encoding: UTF-8

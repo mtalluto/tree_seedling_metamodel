@@ -4,7 +4,7 @@
 #' @export
 survival_ld_dat <- function(dat)
 {
-	Y <- dat[,2]
+	Y <- dat[,1]
 	X <- as.matrix(dat[,c('sizet', 'dd0', 'tdiff')])
 	J <- ncol(X)
 

@@ -116,7 +116,7 @@ integrated_lp <- function(parm, Data)
 	ll <- ll + ll_ns + ll_np
 	LP <- LP + ll_ns + ll_np # no new parameters, so no additional priors
 
-	list(LP=LP, Dev=-2*ll, Monitor=LP, yhat=rbinom(length(probs), 1, probs), parm=parm)
+	list(LP=LP, Dev=-2*ll, Monitor=LP, yhat=rbinom(length(probs_n), 1, probs_n), parm=parm)
 }
 
 

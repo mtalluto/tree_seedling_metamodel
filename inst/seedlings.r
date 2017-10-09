@@ -1,5 +1,6 @@
 ## Main script for running the model integration examples
 library("treeSeedlingMetamodelData")
+library("treeSeedlingMetamodel")
 library(LaplacesDemon)
 data(seedlings, envir = environment())
 

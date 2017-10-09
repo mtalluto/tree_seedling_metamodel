@@ -1,66 +1,125 @@
-#' Seedling survival model Model
-#'
-#' @description Seedling-only survival model, impemented in LaplacesDemon.
-#'
-#' @param method Estimation method; either \code{'laplace'} for Laplace approximation or \code{'metropolis'}
-#'      for Metropolis-Hastings (currently not implemented)
-#' @param iter number of mcmc iterations (only for \code{method='metropolis'})
-#' @param chains number of mcmc chains (only for \code{method='metropolis'})
-#' @param repeatable boolean, should we use a fixed seed?
-#'
-#' @return
-##' @import treeSeedlingMetamodelData
-#' @export
-survival_model_LD <- function(method=c('laplace', 'metropolis'), iter=1000, chains=1, repeatable = FALSE)
+#' @description Create data list for laplaces demon for survival model
+#' @param dat Data frame for the survival model
+survival_ld_dat <- function(dat)
 {
-	method <- match.arg(method)
-	if(repeatable)
-		set.seed(20170328)
+	Y <- dat[,1]
+	X <- as.matrix(dat[,c('sizet', 'dd0', 'tdiff')])
+	J <- ncol(X)
 
-	dat <- seedlings$survival
-	spNames <- unique(dat$species)
+	list(
+		X_s = X,
+		Y_s = Y,
+		J = J,
+		N = length(Y),
+		PGF = function(Data) rnorm(1 + Data$J),
+		parm.names = LaplacesDemon::as.parm.names(list(alpha_s = 0, beta_s=rep(0,J))),
+		mon.names = c('LP')
+	)
+}
 
-	ldData <- sapply(spNames, function(sp)
+#' @description Survival model from seedling metamodel
+#' Created by Paige E. Copenhaver-Parry  28 January 2017
+#' 
+#' @param parm Parameter list
+#' @param Data Data list
+#' @param nested Boolean, is the model nested within another likelihood?
+#' 
+#' @details If \code{nested} is \code{TRUE}, only the log likelihood and 
+#' log posterior are returned, along with the model predictions. Otherwise
+#' a list conforming to LaplacesDemon model functions is returned
+#' @export
+survival_lp <- function(parm, Data, nested=FALSE)
+{
+	ll <- 0
+
+	# unpack parameters and data
+	alpha_s <- parm[param_index(Data, 'alpha_s')]
+	beta_s <- parm[param_index(Data, 'beta_s')]
+	x_s <- Data$X_s
+	y_s <- Data$Y_s
+
+	probs <- plogis(alpha_s + x_s %*% beta_s)
+	## bernoulli likelihood: p where y == 1; 1-p where y == 0
+	ll <- ll + sum(dbinom(y_s, 1, probs, log=TRUE))
+	LP <- ll + sum(LaplacesDemon::dhalfcauchy(beta_s, 2.5, log=TRUE)) + LaplacesDemon::dhalfcauchy(alpha_s, 5, log=TRUE)
+
+	if(nested)
 	{
-		Data <- dat[dat$species == sp,]
-		X <- data.frame(sizet = Data$x, dd0 = Data$dd0, tdiff = Data$tdiff)
-		X <- scale(X)
-		X <- as.matrix(cbind(1, X))
-		J <- ncol(X)
-		parm.names <- LaplacesDemon::as.parm.names(list(beta_surv=rep(0,J)))
-	 	list(
-			X = X,
-			Y = Data$surv,
-			J = J,
-			PGF = function(Data) rnorm(Data$J),
-			parm.names = parm.names,
-			pos.beta_surv = grep("beta_surv", parm.names),
-			mon.names = c('LP')
-		)
-	}, simplify = FALSE, USE.NAMES = TRUE)
-
-
-	## LD Model
-	Model <- function(parm, Data)
-	{
-		beta_surv <- parm[Data$pos.beta_surv]
-		x <- Data$X
-		y <- Data$Y
-		probs <- plogis(x %*% beta_surv)
-		## bernoulli likelihood: p where y == 1; 1-p where y == 0
-		ll <- sum(dbinom(y, 1, probs, log=TRUE))
-
-		# prior on beta_surv
-		LP <- ll + sum(dcauchy(beta_surv, 0, 2.5, log=TRUE))
-
-		list(LP=LP, Dev=-2*ll, Monitor=LP, yhat=rbinom(length(probs), 1, probs), parm=parm)
+		return(list(ll=ll, LP = LP, probs = probs))
+	} else {
+		return(list(LP=LP, Dev=-2*ll, Monitor=LP, yhat=rbinom(length(probs), 1, probs), parm=parm))
 	}
 
-	sapply(ldData, function(D)
-		LaplacesDemon::LaplaceApproximation(Model, LaplacesDemon::GIV(Model, D, PGF=TRUE),
-			D, Iterations = 1000), USE.NAMES = TRUE, simplify=FALSE)
-
 }
+
+
+
+
+
+
+#' Seedling survival model
+#'
+# #' @description Seedling-only survival model, impemented in LaplacesDemon.
+# #'
+# #' @param method Estimation method; either \code{'laplace'} for Laplace approximation or \code{'metropolis'}
+# #'      for Metropolis-Hastings (currently not implemented)
+# #' @param iter number of mcmc iterations (only for \code{method='metropolis'})
+# #' @param chains number of mcmc chains (only for \code{method='metropolis'})
+# #' @param repeatable boolean, should we use a fixed seed?
+# #'
+# #' @return
+# ##' @import treeSeedlingMetamodelData
+# #' @export
+# survival_model_LD <- function(method=c('laplace', 'metropolis'), iter=1000, chains=1, repeatable = FALSE)
+# {
+# 	# method <- match.arg(method)
+# 	# if(repeatable)
+# 	# 	set.seed(20170328)
+
+# 	# dat <- seedlings$survival
+# 	# spNames <- unique(dat$species)
+
+# 	# ldData <- sapply(spNames, function(sp)
+# 	# {
+# 	# 	Data <- dat[dat$species == sp,]
+# 	# 	X <- data.frame(sizet = Data$x, dd0 = Data$dd0, tdiff = Data$tdiff)
+# 	# 	X <- scale(X)
+# 	# 	X <- as.matrix(cbind(1, X))
+# 	# 	J <- ncol(X)
+# 	# 	parm.names <- LaplacesDemon::as.parm.names(list(beta_surv=rep(0,J)))
+# 	#  	list(
+# 	# 		X = X,
+# 	# 		Y = Data$surv,
+# 	# 		J = J,
+# 	# 		PGF = function(Data) rnorm(Data$J),
+# 	# 		parm.names = parm.names,
+# 	# 		pos.beta_surv = grep("beta_surv", parm.names),
+# 	# 		mon.names = c('LP')
+# 	# 	)
+# 	# }, simplify = FALSE, USE.NAMES = TRUE)
+
+
+# 	# ## LD Model
+# 	# Model <- function(parm, Data)
+# 	# {
+# 	# 	beta_surv <- parm[Data$pos.beta_surv]
+# 	# 	x <- Data$X
+# 	# 	y <- Data$Y
+# 	# 	probs <- plogis(x %*% beta_surv)
+# 	# 	## bernoulli likelihood: p where y == 1; 1-p where y == 0
+# 	# 	ll <- sum(dbinom(y, 1, probs, log=TRUE))
+
+# 	# 	# prior on beta_surv
+# 	# 	LP <- ll + sum(dcauchy(beta_surv, 0, 2.5, log=TRUE))
+
+# 	# 	list(LP=LP, Dev=-2*ll, Monitor=LP, yhat=rbinom(length(probs), 1, probs), parm=parm)
+# 	# }
+
+# 	# sapply(ldData, function(D)
+# 	# 	LaplacesDemon::LaplaceApproximation(Model, LaplacesDemon::GIV(Model, D, PGF=TRUE),
+# 	# 		D, Iterations = 1000), USE.NAMES = TRUE, simplify=FALSE)
+
+# }
 
 
 

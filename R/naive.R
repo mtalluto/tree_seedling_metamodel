@@ -1,48 +1,59 @@
-#' Naive Distribution Model
-#'
-#' @description Naive distribution model from seedling metamodel, impemented in rstan.
-#' Created by Paige E. Copenhaver-Parry  28 January 2017
-#'
-#' @param iter number of hmc iterations
-#' @param chains number of hmc chains
-#' @param repeatable boolean, should we use a fixed seed?
-#' @param print_stan_messages boolean, show the (copius) stan messages?
-#'
-#' @return list of stan models, one per species
-#' @import treeSeedlingMetamodelData
+#' Naive model data
+#' @description Create data list for laplaces demon
+#' @param dat Data frame with species data for the SDM
 #' @export
-naive_model_stan <- function(iter = 1000, chains = 1, repeatable = FALSE, print_stan_messages = FALSE)
+naive_ld_dat <- function(dat)
 {
-	if(repeatable)
-		set.seed(20170328)
+	Y <- dat[,1]
+	X <- as.matrix(dat[,-c(1:3)])
+	J <- ncol(X)
 
-	stanfile = system.file('stan', 'naiveSDM.stan', package = 'treeSeedlingMetamodel')
-	dat <- seedlings$fia_adults
-
-	X <- as.matrix(dat[, c('dd0', 'tdiff', 'gsp', 'winp')])
-	Y <- dat[,names(naive_covariates)]
-
-	# organize data and scale
-	X <- scale(X)  ## minor change from original; scale to unit variance, instead of by the range
-
-	# add columns for interactions
-	Xint <- do.call(cbind, sapply(1:ncol(X), function(i) X[,i] * X[,i:ncol(X), drop=FALSE]))
-	colnames(Xint) <- paste(colnames(Xint), rep(colnames(X), ncol(X):1), sep='X')
-	X <- cbind(X, Xint)
-
-	# select variables (in internal dataset naive_covariates) and run stan
-	lapply(names(naive_covariates), function(modname) {
-		X[,naive_covariates[[modname]]]
-		standat <- list(
-			N = nrow(X),
-			K = length(naive_covariates[[modname]]),
-			x = X[,naive_covariates[[modname]]],
-			y = Y[,modname])
-		if(print_stan_messages) {
-			mod <- stan(file = stanfile, data=standat, iter=iter, chains=chains)
-		} else {
-			msg <- capture.output(mod <- stan(file = stanfile, data=standat, iter=iter, chains=chains), type='output')
-		}
-		mod
-	})
+	list(
+		X_n = X,
+		Y_n = Y,
+		J_n = J,
+		N = length(Y),
+		PGF = function(Data) rnorm(1+Data$J),
+		parm.names = LaplacesDemon::as.parm.names(list(alpha_n = 0, beta_n=rep(0,J))),
+		mon.names = c('LP')
+	)
 }
+
+
+#' Naive distribution model
+#' Naive distribution model from seedling metamodel
+#' Created by Paige E. Copenhaver-Parry  28 January 2017
+#' 
+#' @param parm Parameter list
+#' @param Data Data list
+#' @param nested Boolean, is the model nested within another likelihood?
+#' 
+#' @details If \code{nested} is \code{TRUE}, only the log likelihood and 
+#' log posterior are returned, along with the model predictions. Otherwise
+#' a list conforming to LaplacesDemon model functions is returned
+#' @export
+naive_lp <- function(parm, Data, nested=FALSE)
+{
+	ll <- 0
+
+	# unpack parameters and data
+	alpha_n <- parm[param_index(Data, 'alpha_n')]
+	beta_n <- parm[param_index(Data, 'beta_n')]
+	x_n <- Data$X_n
+	y_n <- Data$Y_n
+
+	probs <- plogis(alpha_n + x_n %*% beta_n)
+	## bernoulli likelihood: p where y == 1; 1-p where y == 0
+	ll <- ll + sum(dbinom(y_n, 1, probs, log=TRUE))
+	# guard against numerical problems with plogis
+	if(is.infinite(ll)) ll <- -1e7
+	LP <- ll + sum(LaplacesDemon::dhalfcauchy(beta_n, 2.5, log=TRUE)) + LaplacesDemon::dhalfcauchy(alpha_n, 5, log=TRUE)
+
+	if(nested)
+	{
+		return(list(ll=ll, LP = LP, probs = probs))
+	} else {
+		return(list(LP=LP, Dev=-2*ll, Monitor=LP, yhat=rbinom(length(probs), 1, probs), parm=parm))
+	}
+}
+

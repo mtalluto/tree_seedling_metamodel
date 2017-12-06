@@ -28,7 +28,7 @@ sp <- seedlings$species[1]
 	## population model
 	popDat <- pop_ld_dat(seedlings$population[[sp]])
 	popMod <- LaplacesDemon::LaplacesDemon(population_lp, popDat, LaplacesDemon::GIV(population_lp, popDat, PGF=TRUE), 
-		Algorithm = "AM", specs=list(Adaptive = 50, Periodicity = 50), Iterations = 100)
+		Algorithm = "AM", specs=list(Adaptive = 50, Periodicity = 50), Iterations = 50000, Status=1000)
 
 	# integrated model
 	intDat <- integrated_ld_dat(seedlings$sdm_adults[[sp]], seedlings$survival[[sp]], seedlings$population[[sp]])

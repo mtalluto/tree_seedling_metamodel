@@ -3,7 +3,8 @@
 \name{population_lp}
 \alias{population_lp}
 \title{Population model from seedling metamodel
-Created by Paige E. Copenhaver-Parry  28 January 2017}
+Created by Paige E. Copenhaver-Parry  28 January 2017
+Modified 6 Dec 2017}
 \usage{
 population_lp(parm, Data, nested = FALSE)
 }
@@ -17,6 +18,7 @@ population_lp(parm, Data, nested = FALSE)
 \description{
 Population model from seedling metamodel
 Created by Paige E. Copenhaver-Parry  28 January 2017
+Modified 6 Dec 2017
 }
 \details{
 If \code{nested} is \code{TRUE}, only the log likelihood and 

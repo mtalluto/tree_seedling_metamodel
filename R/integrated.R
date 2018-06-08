@@ -51,7 +51,9 @@ integrated_ld_dat <- function(ndat, sdat, pdat)
 		X_np = as.matrix(pdat[,colnames(naive_data$X_n)[indices_np]]), # taking care to preserve ordering of columns
 		J = naive_data$J + surv_data$J + pop_data$J,
 		N = naive_data$N + surv_data$N + pop_data$N,
-		PGF = function(Data) rnorm(Data$J + 4), # add one for each intercept and one for population sigma
+		PGF = function(Data)
+			c(Data$nData$PGF(Data$nData), Data$sData$PGF(Data$sData), Data$pData$PGF(Data$pData)), 
+		#rnorm(Data$J + 4), # add one for each intercept and one for population sigma
 		parm.names = parm.names,
 		mon.names = c('LP'),
 		params_ns = names_ns,
@@ -73,7 +75,6 @@ integrated_lp <- function(parm, Data)
 	ll <- 0
 	LP <- 0
 	alpha_n <- parm[param_index(Data, 'alpha_n')]
-
 	# naive model
 	nm <- naive_lp(parm, Data$nData, TRUE)
 	ll <- ll + nm$ll
@@ -91,7 +92,6 @@ integrated_lp <- function(parm, Data)
 	ll <- ll + pm$ll
 	LP <- LP + pm$LP
 	pop_r <- pm$r
-
 
 	# compute survival threshold using TSS
 	threshold <- optimize(tss, interval = c(0, 1), maximum = TRUE, y = Data$sData$Y_s, pr = probs_s)

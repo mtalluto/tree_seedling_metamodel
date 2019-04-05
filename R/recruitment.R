@@ -1,8 +1,8 @@
-#' Population model data
-#' @description Create data list for laplaces demon for survival model
-#' @param dat Data frame for the survival model
+#' Recruitment submodel data
+#' @description Create data list for laplaces demon for recruitment model
+#' @param dat Data frame for the recruitment model
 #' @export
-pop_ld_dat <- function(dat)
+recruitment_ld_dat <- function(dat)
 {
 	Y <- dat[,2]
 	Nt <- dat[,3]
@@ -24,7 +24,7 @@ pop_ld_dat <- function(dat)
 }
 
 
-#' Population model from seedling metamodel
+#' Recruitment submodel from seedling metamodel
 #' Created by Paige E. Copenhaver-Parry  28 January 2017
 #' Modified 6 Dec 2017
 #' 
@@ -36,7 +36,7 @@ pop_ld_dat <- function(dat)
 #' log posterior are returned, along with the model predictions. Otherwise
 #' a list conforming to LaplacesDemon model functions is returned
 #' @export
-population_lp <- function(parm, Data, nested=FALSE)
+recruitment_lp <- function(parm, Data, nested=FALSE)
 {
 
 	## likelihood
@@ -45,9 +45,9 @@ population_lp <- function(parm, Data, nested=FALSE)
 	alpha_p <- parm[param_index(Data, 'alpha_p')]
 	beta_p <- parm[param_index(Data, 'beta_p')]
 	#constrain b-P to be positive
-	parm[param_index(Data, 'b_p')] <- b_p <- interval(parm[param_index(Data, 'b_p')], 0, Inf)
+	parm[param_index(Data, 'b_p')] <- b_p <- LaplacesDemon::interval(parm[param_index(Data, 'b_p')], 0, Inf)
 	# we track log sigma, to avoid having to truncate sigma (it is strictly positive)
-	parm[param_index(Data, 'sigma_p')] <- sigma_p <- interval(parm[param_index(Data, 'sigma_p')], 0, Inf)
+	parm[param_index(Data, 'sigma_p')] <- sigma_p <- LaplacesDemon::interval(parm[param_index(Data, 'sigma_p')], 0, Inf)
 	# unpack data
 	y_p <- Data$Y_p
 	x_p <- Data$X_p

@@ -7,11 +7,11 @@
 tss(thresh, y, pr)
 }
 \arguments{
+\item{thresh}{The threshold to apply if probabilities (pr) are specified}
+
 \item{y}{Data points; observed 1s and 0s}
 
 \item{pr}{Predicted probabilities}
-
-\item{thres}{The threshold to apply if probabilities (pr) are specified}
 }
 \description{
 Compute the true skill statistic

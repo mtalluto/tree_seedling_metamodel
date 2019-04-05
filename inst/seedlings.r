@@ -35,14 +35,14 @@ sp <- seedlings$species[1]
 	survMod <- LaplacesDemon::LaplacesDemon(survival_lp, survDat, Initial.Values, Covar=survMod$Covar, Iterations=100000,
 		Status=5000, Algorithm="RWM")
 
-	## population model
-	popDat <- pop_ld_dat(seedlings$population[[sp]])
-	popMod <- LaplacesDemon::LaplacesDemon(population_lp, popDat, LaplacesDemon::GIV(population_lp, popDat, PGF=TRUE), 
+	## recruitment model
+	popDat <- recruitment_ld_dat(seedlings$population[[sp]])
+	popMod <- LaplacesDemon::LaplacesDemon(recruitment_lp, popDat, LaplacesDemon::GIV(recruitment_lp, popDat, PGF=TRUE), 
 		Algorithm = "AM", specs=list(Adaptive = 50, Periodicity = 50), Iterations = 100, Status=1000)
 
 	# set initial values and re-fit with a non-adaptive algorithm
 	Initial.Values <- as.initial.values(popMod)
-	popMod <- LaplacesDemon::LaplacesDemon(population_lp, popDat, Initial.Values, Covar=popMod$Covar, Iterations=100000,
+	popMod <- LaplacesDemon::LaplacesDemon(recruitment_lp, popDat, Initial.Values, Covar=popMod$Covar, Iterations=100000,
 		Status=5000, Algorithm="RWM")
 
 	# integrated model

@@ -1,0 +1,19 @@
+citHeader("To cite treeSeedlingMetamodel in publications use:")
+
+citEntry(entry = "Article",
+  title        = "Multi-scale integration of tree recruitment and range dynamics in a changing climate",
+  author       = personList(as.person("Paige E. Copenhaver-Parry"),
+                   as.person("Charles J.W. Carroll"),
+                   as.person("Patrick H. Martin"),
+                   as.person("Matthew V. Talluto")),
+  journal      = "ms in prep",
+  year         = "2019",
+  volume       = "",
+  number       = "",
+  pages        = "",
+  url          = "",
+
+  textVersion  =
+  paste("Paige E. Copenhaver-Parry, Charles J.W. Carroll, Patrick H. Martin, Matthew V. Talluto 
+        (in prep).", "Multi-scale integration of tree recruitment and range dynamics in a changing climate.")
+)

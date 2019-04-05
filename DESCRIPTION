@@ -1,13 +1,15 @@
 Package: treeSeedlingMetamodel
 Title: Code package for tree seedling metamodel
-Version: 1.0.2
-Authors@R: person("Matthew", "Talluto", email = "matthew.talluto@univ-grenoble-alpes.fr", role = c("aut", "cre"))
-Description: Code package for tree seedling metamodel
-Depends: R (>= 3.3.3)
+Version: 1.1.0
+Authors@R: c(person("Matthew", "Talluto", email = "talluto@igb-berlin.de", role = c("aut", "cre")), person("Paige", "Copenhaver-Parry", email = "pparry@georgefox.edu", role = c("aut")))
+Description: This is a code package for the tree seedling metamodel, including functions and supplemental code needed to run the model.
+Depends: R (>= 3.3)
 Imports:
-	treeSeedlingMetamodelData,
+	stats,
 	LaplacesDemon
-License: MIT License (see license file)
+Suggests:
+	treeSeedlingMetamodelData
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.1

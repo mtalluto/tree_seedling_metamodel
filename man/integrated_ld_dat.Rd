@@ -12,7 +12,7 @@ integrated_ld_dat(ndat, sdat, pdat)
 
 \item{sdat}{Data frame for the survival model}
 
-\item{pdat}{Data frame for population model}
+\item{pdat}{Data frame for recruitment model}
 }
 \description{
 Integrated data

@@ -6,6 +6,11 @@
 \usage{
 param_index(dat, parm)
 }
+\arguments{
+\item{dat}{Data list to search}
+
+\item{parm}{Parameter name}
+}
 \description{
 Utility function to find the index position in a LD parameter object of a named parameter
 }

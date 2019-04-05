@@ -1,4 +1,10 @@
+#' @importFrom stats dbinom dcauchy dgamma dnorm optimize plogis rbinom rnorm
+#' 
+NULL
+
 #' Utility function to find the index position in a LD parameter object of a named parameter
+#' @param dat Data list to search
+#' @param parm Parameter name
 param_index <- function(dat, parm) 
 {
 	grep(parm, dat$parm.names)
@@ -6,7 +12,7 @@ param_index <- function(dat, parm)
 
 #' Compute the true skill statistic
 #' 
-#' @param thres The threshold to apply if probabilities (pr) are specified
+#' @param thresh The threshold to apply if probabilities (pr) are specified
 #' @param y Data points; observed 1s and 0s
 #' @param pr Predicted probabilities
 tss <- function(thresh, y, pr)
@@ -27,13 +33,13 @@ tss <- function(thresh, y, pr)
 #' Create data list for laplaces demon for integrated model
 #' @param ndat Data frame for the naive model
 #' @param sdat Data frame for the survival model
-#' @param pdat Data frame for population model
+#' @param pdat Data frame for recruitment model
 #' @export
 integrated_ld_dat <- function(ndat, sdat, pdat)
 {
 	naive_data <- naive_ld_dat(ndat)
 	surv_data <- survival_ld_dat(sdat)
-	pop_data <- pop_ld_dat(pdat)
+	pop_data <- recruitment_ld_dat(pdat)
 	parm.names <- c(naive_data$parm.names, surv_data$parm.names, pop_data$parm.names)
 	naive_data$parm.names <- surv_data$parm.names <- pop_data$parm.names <- parm.names 
 
@@ -53,7 +59,7 @@ integrated_ld_dat <- function(ndat, sdat, pdat)
 		N = naive_data$N + surv_data$N + pop_data$N,
 		PGF = function(Data)
 			c(Data$nData$PGF(Data$nData), Data$sData$PGF(Data$sData), Data$pData$PGF(Data$pData)), 
-		#rnorm(Data$J + 4), # add one for each intercept and one for population sigma
+		#rnorm(Data$J + 4), # add one for each intercept and one for recruitment sigma
 		parm.names = parm.names,
 		mon.names = c('LP'),
 		params_ns = names_ns,
@@ -64,7 +70,7 @@ integrated_ld_dat <- function(ndat, sdat, pdat)
 
 
 #' Integrated model
-#' Log probability integrating naive and survival and population models
+#' Log probability integrating naive and survival and recruitment models
 #' 
 #' @param parm Parameter list
 #' @param Data Data list
@@ -87,8 +93,8 @@ integrated_lp <- function(parm, Data)
 	LP <- LP + sm$LP
 	probs_s <- sm$probs
 
-	# population model
-	pm <- population_lp(parm, Data$pData, TRUE)
+	# recruitment model
+	pm <- recruitment_lp(parm, Data$pData, TRUE)
 	ll <- ll + pm$ll
 	LP <- LP + pm$LP
 	pop_r <- pm$r
@@ -102,7 +108,7 @@ integrated_lp <- function(parm, Data)
 	x_ns <- Data$X_ns
 	beta_ns <- parm[which(Data$parm.names %in% Data$params_ns)]
 
-	# integrate population model
+	# integrate recruitment model
 	# in this case the pseudo-y's come from the assumption that pop is present if r is > 0
 	y_np <- (pop_r > 0) * 1.0
 	x_np <- Data$X_np

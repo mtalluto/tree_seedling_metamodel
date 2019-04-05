@@ -3,7 +3,7 @@
 \name{integrated_lp}
 \alias{integrated_lp}
 \title{Integrated model
-Log probability integrating naive and survival and population models}
+Log probability integrating naive and survival and recruitment models}
 \usage{
 integrated_lp(parm, Data)
 }
@@ -14,5 +14,5 @@ integrated_lp(parm, Data)
 }
 \description{
 Integrated model
-Log probability integrating naive and survival and population models
+Log probability integrating naive and survival and recruitment models
 }
